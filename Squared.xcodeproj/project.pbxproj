@@ -39,7 +39,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		022EDF631FEA4B65004D34AB /* Graphy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Graphy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		022EDF631FEA4B65004D34AB /* Squared.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Squared.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		022EDF661FEA4B65004D34AB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		022EDF681FEA4B65004D34AB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		022EDF6B1FEA4B65004D34AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -47,10 +47,10 @@
 		022EDF701FEA4B65004D34AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		022EDF731FEA4B65004D34AB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		022EDF751FEA4B65004D34AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		022EDF7A1FEA4B66004D34AB /* GraphyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		022EDF7A1FEA4B66004D34AB /* SquaredTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SquaredTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		022EDF7E1FEA4B66004D34AB /* GraphyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphyTests.swift; sourceTree = "<group>"; };
 		022EDF801FEA4B66004D34AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		022EDF851FEA4B66004D34AB /* GraphyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GraphyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		022EDF851FEA4B66004D34AB /* SquaredUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SquaredUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		022EDF891FEA4B66004D34AB /* GraphyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphyUITests.swift; sourceTree = "<group>"; };
 		022EDF8B1FEA4B66004D34AB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		022EDF981FEA4EA8004D34AB /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
@@ -87,9 +87,9 @@
 		022EDF5A1FEA4B65004D34AB = {
 			isa = PBXGroup;
 			children = (
-				022EDF651FEA4B65004D34AB /* Graphy */,
-				022EDF7D1FEA4B66004D34AB /* GraphyTests */,
-				022EDF881FEA4B66004D34AB /* GraphyUITests */,
+				022EDF651FEA4B65004D34AB /* Squared */,
+				022EDF7D1FEA4B66004D34AB /* SquaredTests */,
+				022EDF881FEA4B66004D34AB /* SquaredUITests */,
 				022EDF641FEA4B65004D34AB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -97,14 +97,14 @@
 		022EDF641FEA4B65004D34AB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				022EDF631FEA4B65004D34AB /* Graphy.app */,
-				022EDF7A1FEA4B66004D34AB /* GraphyTests.xctest */,
-				022EDF851FEA4B66004D34AB /* GraphyUITests.xctest */,
+				022EDF631FEA4B65004D34AB /* Squared.app */,
+				022EDF7A1FEA4B66004D34AB /* SquaredTests.xctest */,
+				022EDF851FEA4B66004D34AB /* SquaredUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		022EDF651FEA4B65004D34AB /* Graphy */ = {
+		022EDF651FEA4B65004D34AB /* Squared */ = {
 			isa = PBXGroup;
 			children = (
 				022EDF971FEA4DDF004D34AB /* Camera */,
@@ -117,25 +117,25 @@
 				022EDF751FEA4B65004D34AB /* Info.plist */,
 				022EDF6D1FEA4B65004D34AB /* Graphy.xcdatamodeld */,
 			);
-			path = Graphy;
+			path = Squared;
 			sourceTree = "<group>";
 		};
-		022EDF7D1FEA4B66004D34AB /* GraphyTests */ = {
+		022EDF7D1FEA4B66004D34AB /* SquaredTests */ = {
 			isa = PBXGroup;
 			children = (
 				022EDF7E1FEA4B66004D34AB /* GraphyTests.swift */,
 				022EDF801FEA4B66004D34AB /* Info.plist */,
 			);
-			path = GraphyTests;
+			path = SquaredTests;
 			sourceTree = "<group>";
 		};
-		022EDF881FEA4B66004D34AB /* GraphyUITests */ = {
+		022EDF881FEA4B66004D34AB /* SquaredUITests */ = {
 			isa = PBXGroup;
 			children = (
 				022EDF891FEA4B66004D34AB /* GraphyUITests.swift */,
 				022EDF8B1FEA4B66004D34AB /* Info.plist */,
 			);
-			path = GraphyUITests;
+			path = SquaredUITests;
 			sourceTree = "<group>";
 		};
 		022EDF971FEA4DDF004D34AB /* Camera */ = {
@@ -151,9 +151,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		022EDF621FEA4B65004D34AB /* Graphy */ = {
+		022EDF621FEA4B65004D34AB /* Squared */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 022EDF8E1FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "Graphy" */;
+			buildConfigurationList = 022EDF8E1FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "Squared" */;
 			buildPhases = (
 				022EDF5F1FEA4B65004D34AB /* Sources */,
 				022EDF601FEA4B65004D34AB /* Frameworks */,
@@ -163,14 +163,14 @@
 			);
 			dependencies = (
 			);
-			name = Graphy;
+			name = Squared;
 			productName = Graphy;
-			productReference = 022EDF631FEA4B65004D34AB /* Graphy.app */;
+			productReference = 022EDF631FEA4B65004D34AB /* Squared.app */;
 			productType = "com.apple.product-type.application";
 		};
-		022EDF791FEA4B66004D34AB /* GraphyTests */ = {
+		022EDF791FEA4B66004D34AB /* SquaredTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 022EDF911FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "GraphyTests" */;
+			buildConfigurationList = 022EDF911FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "SquaredTests" */;
 			buildPhases = (
 				022EDF761FEA4B66004D34AB /* Sources */,
 				022EDF771FEA4B66004D34AB /* Frameworks */,
@@ -181,14 +181,14 @@
 			dependencies = (
 				022EDF7C1FEA4B66004D34AB /* PBXTargetDependency */,
 			);
-			name = GraphyTests;
+			name = SquaredTests;
 			productName = GraphyTests;
-			productReference = 022EDF7A1FEA4B66004D34AB /* GraphyTests.xctest */;
+			productReference = 022EDF7A1FEA4B66004D34AB /* SquaredTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		022EDF841FEA4B66004D34AB /* GraphyUITests */ = {
+		022EDF841FEA4B66004D34AB /* SquaredUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 022EDF941FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "GraphyUITests" */;
+			buildConfigurationList = 022EDF941FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "SquaredUITests" */;
 			buildPhases = (
 				022EDF811FEA4B66004D34AB /* Sources */,
 				022EDF821FEA4B66004D34AB /* Frameworks */,
@@ -199,9 +199,9 @@
 			dependencies = (
 				022EDF871FEA4B66004D34AB /* PBXTargetDependency */,
 			);
-			name = GraphyUITests;
+			name = SquaredUITests;
 			productName = GraphyUITests;
-			productReference = 022EDF851FEA4B66004D34AB /* GraphyUITests.xctest */;
+			productReference = 022EDF851FEA4B66004D34AB /* SquaredUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -230,7 +230,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 022EDF5E1FEA4B65004D34AB /* Build configuration list for PBXProject "Graphy" */;
+			buildConfigurationList = 022EDF5E1FEA4B65004D34AB /* Build configuration list for PBXProject "Squared" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -243,9 +243,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				022EDF621FEA4B65004D34AB /* Graphy */,
-				022EDF791FEA4B66004D34AB /* GraphyTests */,
-				022EDF841FEA4B66004D34AB /* GraphyUITests */,
+				022EDF621FEA4B65004D34AB /* Squared */,
+				022EDF791FEA4B66004D34AB /* SquaredTests */,
+				022EDF841FEA4B66004D34AB /* SquaredUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -313,12 +313,12 @@
 /* Begin PBXTargetDependency section */
 		022EDF7C1FEA4B66004D34AB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 022EDF621FEA4B65004D34AB /* Graphy */;
+			target = 022EDF621FEA4B65004D34AB /* Squared */;
 			targetProxy = 022EDF7B1FEA4B66004D34AB /* PBXContainerItemProxy */;
 		};
 		022EDF871FEA4B66004D34AB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 022EDF621FEA4B65004D34AB /* Graphy */;
+			target = 022EDF621FEA4B65004D34AB /* Squared */;
 			targetProxy = 022EDF861FEA4B66004D34AB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -495,7 +495,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Graphy.app/Graphy";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Squared.app/Squared";
 			};
 			name = Debug;
 		};
@@ -512,7 +512,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Graphy.app/Graphy";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Squared.app/Squared";
 			};
 			name = Release;
 		};
@@ -551,7 +551,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		022EDF5E1FEA4B65004D34AB /* Build configuration list for PBXProject "Graphy" */ = {
+		022EDF5E1FEA4B65004D34AB /* Build configuration list for PBXProject "Squared" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				022EDF8C1FEA4B66004D34AB /* Debug */,
@@ -560,7 +560,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		022EDF8E1FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "Graphy" */ = {
+		022EDF8E1FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "Squared" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				022EDF8F1FEA4B66004D34AB /* Debug */,
@@ -569,7 +569,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		022EDF911FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "GraphyTests" */ = {
+		022EDF911FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "SquaredTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				022EDF921FEA4B66004D34AB /* Debug */,
@@ -578,7 +578,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		022EDF941FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "GraphyUITests" */ = {
+		022EDF941FEA4B66004D34AB /* Build configuration list for PBXNativeTarget "SquaredUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				022EDF951FEA4B66004D34AB /* Debug */,
