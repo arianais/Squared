@@ -16,6 +16,7 @@
 import UIKit
 import AVFoundation
 import Photos
+import Vision
 
 private var CapturingStillImageContext = 0 //### iOS < 10.0
 private var SessionRunningContext = 0
@@ -74,7 +75,7 @@ extension AVCaptureDevice.DiscoverySession: AVCaptureDeviceDiscoverySessionType 
 extension AVCapturePhotoOutput: AVCapturePhotoOutputType {}
 
 @objc(CameraViewController)
-class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
     
   
 
@@ -86,7 +87,9 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     
     @IBOutlet var cameraUnavailableLabel: UILabel!
     
-    @IBOutlet var previewView: PreviewView!
+  //  @IBOutlet var previewView: PreviewView!
+    var previewLayer = AVCaptureVideoPreviewLayer()
+  
     
  
     
@@ -111,6 +114,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     @objc dynamic var videoDevice: AVCaptureDevice?
     @objc dynamic var movieFileOutput: AVCaptureMovieFileOutput?
     @objc dynamic var photoOutput: AVCapturePhotoOutputType?
+    @objc dynamic var videoOutput: AVCaptureVideoDataOutput?
     @objc dynamic var stillImageOutput: AVCaptureStillImageOutput? //### iOS < 10.0
     
     private var inProgressPhotoCaptureDelegates: [Int64: CaptureDelegateType] = [:]
@@ -132,7 +136,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         self.photoButton.isEnabled = false
         
         
-        
+        self.view.layer.addSublayer(shape)
         
         
         
@@ -140,7 +144,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         // Create the AVCaptureSession.
         self.session = AVCaptureSession()
-        
+   
         // Create a device discovery session
         if #available(iOS 10.0, *) {
             let deviceTypes: [AVCaptureDevice.DeviceType] = [AVCaptureDevice.DeviceType.builtInWideAngleCamera, AVCaptureDevice.DeviceType.builtInDuoCamera, AVCaptureDevice.DeviceType.builtInTelephotoCamera]
@@ -148,8 +152,10 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         }
         
         // Setup the preview view.
-        self.previewView.session = self.session
-        
+       
+        self.previewLayer.session = self.session
+    
+  
         // Communicate with the session and other session objects on this queue.
         self.sessionQueue = DispatchQueue(label: "session queue", attributes: [])
         
@@ -187,7 +193,24 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         }
        
     }
-    
+    var image = UIImage()
+    func prepareForSegue(segue: UIStoryboardSegue!, sender: AnyObject!) {
+        if (segue.identifier == "toImg") {
+            let dvc = segue.destination as! EditViewController
+            DispatchQueue.main.async {
+               
+                dvc.image = self.self.image
+            }
+           
+        }
+    }
+    func resizeView(){
+        DispatchQueue.main.async {
+            self.previewLayer.frame = self.view.layer.bounds
+            self.view.layer.insertSublayer(self.previewLayer, at: 2)
+            self.previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        }
+    }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -196,6 +219,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             case .success:
                 // Only setup observers and start the session running if setup succeeded.
                 self.addObservers()
+                self.resizeView()
+                
                 self.session.startRunning()
                 self.isSessionRunning = self.session.isRunning
             case .cameraNotAuthorized:
@@ -244,7 +269,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         let deviceOrientation = UIDevice.current.orientation
         
         if UIDeviceOrientationIsPortrait(deviceOrientation) || UIDeviceOrientationIsLandscape(deviceOrientation) {
-            let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
+           // self.previewLayer = self.previewLa as! AVCaptureVideoPreviewLayer
             previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation(rawValue: deviceOrientation.rawValue)!
         }
     }
@@ -326,8 +351,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
                     initialVideoOrientation = AVCaptureVideoOrientation(rawValue: statusBarOrientation.rawValue)!
                 }
                 
-                let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
-                previewLayer.connection?.videoOrientation = initialVideoOrientation
+             //   let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
+                self.previewLayer.connection?.videoOrientation = initialVideoOrientation
             }
         } else {
             NSLog("Could not add video device input to the session")
@@ -340,11 +365,15 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         if #available(iOS 10.0, *) {
             // Add photo output
-            let photoOutput = AVCapturePhotoOutput()
-            if self.session.canAddOutput(photoOutput) {
-                self.session.addOutput(photoOutput)
-                self.photoOutput = photoOutput
-                photoOutput.isHighResolutionCaptureEnabled = true
+            self.videoOutput  = AVCaptureVideoDataOutput()
+            self.photoOutput = AVCapturePhotoOutput()
+            self.videoOutput!.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
+            if self.session.canAddOutput(videoOutput as! AVCaptureOutput) {
+                self.session.addOutput(videoOutput as! AVCaptureOutput)
+                self.session.addOutput(self.photoOutput as! AVCaptureOutput)
+                
+              //  self.photoOutput = photoOutput as! AVCapturePhotoOutputType
+              //  photoOutput.isHighResolutionCaptureEnabled = true
                 
                 self.inProgressPhotoCaptureDelegates = [:]
             } else {
@@ -411,13 +440,13 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             if rawEnabled && !photoOutput.__availableRawPhotoPixelFormatTypes.isEmpty {
                 photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: photoOutput.__availableRawPhotoPixelFormatTypes[0].uint32Value, processedFormat: nil, bracketedSettings: bracketedSettings)
             } else {
-                photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0, processedFormat: [AVVideoCodecKey: AVVideoCodecJPEG], bracketedSettings: bracketedSettings)
+                photoSettings = AVCapturePhotoBracketSettings(rawPixelFormatType: 0, processedFormat: [AVVideoCodecKey: AVVideoCodecType.jpeg], bracketedSettings: bracketedSettings)
             }
             
             (photoSettings as! AVCapturePhotoBracketSettings).isLensStabilizationEnabled = true
         } else {
             if rawEnabled && !photoOutput.__availableRawPhotoPixelFormatTypes.isEmpty {
-                photoSettings = AVCapturePhotoSettings(rawPixelFormatType: photoOutput.__availableRawPhotoPixelFormatTypes[0].uint32Value, processedFormat: [AVVideoCodecKey : AVVideoCodecJPEG])
+                photoSettings = AVCapturePhotoSettings(rawPixelFormatType: photoOutput.__availableRawPhotoPixelFormatTypes[0].uint32Value, processedFormat: [AVVideoCodecKey : AVVideoCodecType.jpeg])
             } else {
                 photoSettings = AVCapturePhotoSettings()
             }
@@ -452,6 +481,9 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             // A failure to start the session running will be communicated via a session runtime error notification.
             // To avoid repeatedly failing to start the session running, we only try to restart the session running in the
             // session runtime error handler if we aren't trying to resume the session running.
+//            self.previewLayer.frame = self.view.layer.bounds
+//            self.view.layer.addSublayer(self.previewLayer)
+//            self.previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
             self.session.startRunning()
             self.isSessionRunning = self.session.isRunning
             if !self.session.isRunning {
@@ -620,33 +652,50 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     
     @IBAction func capturePhoto(_: Any) {
         if #available(iOS 10.0, *) {
-            self.capturePhoto()
+            DispatchQueue.main.async {
+               self.snapStillImage()
+             
+            }
+      
+      
         } else {
-            self.snapStillImage()
+            //self.snapStillImage()
         }
+    }
+    
+    func screenShotMethod() -> UIImage? {
+        UIGraphicsBeginImageContext(view.frame.size)
+        view.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        UIImageWriteToSavedPhotosAlbum(image!, nil, nil, nil)
+        print("shot")
+        return image
     }
     @available(iOS 10.0, *)
     private func capturePhoto() {
         // Retrieve the video preview layer's video orientation on the main queue before entering the session queue
         // We do this to ensure UI elements are accessed on the main thread and session configuration is done on the session queue
        turnOnTorch(device: self.videoDevice!)
-        let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
+      
+      //  turnOffTorch(device: self.videoDevice!)
+        let previewLayer = self.previewLayer
         let videoPreviewLayerVideoOrientation = previewLayer.connection?.videoOrientation
-        
-        let settings = self.currentPhotoSettings()
+//
+ 
         self.sessionQueue.async {
-            
-            // Update the orientation on the photo output video connection before capturing
+       let settings = self.currentPhotoSettings()
+//            // Update the orientation on the photo output video connection before capturing
             let photoOutputConnection = self.photoOutput?.connection(with: .video)
             photoOutputConnection?.videoOrientation = videoPreviewLayerVideoOrientation!
-            
-            // Use a separate object for the photo capture delegate to isolate each capture life cycle.
+//
+//            // Use a separate object for the photo capture delegate to isolate each capture life cycle.
             let photoCaptureDelegate = CaptureDelegate(requestedPhotoSettings: settings!, willCapturePhotoAnimation: {
                 // Perform a shutter animation.
                 DispatchQueue.main.async {
-                    self.previewView.layer.opacity = 0.0
+                    self.previewLayer.opacity = 0.0
                     UIView.animate(withDuration: 0.25) {
-                        self.previewView.layer.opacity = 1.0
+                        self.previewLayer.opacity = 1.0
                     }
                 }
             }, completed: {photoCaptureDelegate in
@@ -656,59 +705,145 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
                 }
                 self.turnOffTorch(device: self.videoDevice!)
             })
-            
-            /*
-             The Photo Output keeps a weak reference to the photo capture delegate so
-             we store it in an array to maintain a strong reference to this object
-             until the capture is completed.
-             */
+//
+//            /*
+//             The Photo Output keeps a weak reference to the photo capture delegate so
+//             we store it in an array to maintain a strong reference to this object
+//             until the capture is completed.
+//             */
             self.inProgressPhotoCaptureDelegates[photoCaptureDelegate.requestedPhotoSettings.uniqueID] = photoCaptureDelegate
-            self.photoOutput?.capturePhoto(with: settings!, delegate: photoCaptureDelegate)
+            
+            //self.photoOutput?.capturePhoto(with: settings!, delegate: photoCaptureDelegate)
         }
+//    }
+//
+//    //MARK: Recording Movies
+//
+//    @IBAction func toggleMovieRecording(_: Any) {
+//        // Disable the Camera button until recording finishes, and disable the Record button until recording starts or finishes (see the AVCaptureFileOutputRecordingDelegate methods)
+//        self.cameraButton.isEnabled = false
+//
+//
+//
+//        // Retrieve the video preview layer's video orientation on the main queue before entering the session queue. We do this to ensure UI
+//        // elements are accessed on the main thread and session configuration is done on the session queue.
+//      //  let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
+//        let previewLayerVideoOrientation = previewLayer.connection?.videoOrientation
+//        self.sessionQueue.async {
+//            if !(self.movieFileOutput?.isRecording ?? false) {
+//                if UIDevice.current.isMultitaskingSupported {
+//                    // Setup background task. This is needed because the -[captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:]
+//                    // callback is not received until AVCamManual returns to the foreground unless you request background execution time.
+//                    // This also ensures that there will be time to write the file to the photo library when AVCamManual is backgrounded.
+//                    // To conclude this background execution, -endBackgroundTask is called in
+//                    // -[captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:] after the recorded file has been saved.
+//                    self.backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
+//                }
+//                let movieConnection = self.movieFileOutput?.connection(with: AVMediaType.video)
+//                movieConnection?.videoOrientation = previewLayerVideoOrientation!
+//
+//                // Start recording to temporary file
+//                let outputFileName = ProcessInfo.processInfo.globallyUniqueString
+//                let outputFileURL: URL
+//                if #available(iOS 10.0, *) {
+//                    outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(outputFileName).appendingPathExtension("mov")
+//                } else {
+//                    outputFileURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true).appendingPathComponent(outputFileName).appendingPathExtension("mov")
+//                }
+//                self.movieFileOutput!.startRecording(to: outputFileURL, recordingDelegate: self)
+//            } else {
+//                self.movieFileOutput!.stopRecording()
+//            }
+//        }
     }
     
-    //MARK: Recording Movies
-    
-    @IBAction func toggleMovieRecording(_: Any) {
-        // Disable the Camera button until recording finishes, and disable the Record button until recording starts or finishes (see the AVCaptureFileOutputRecordingDelegate methods)
-        self.cameraButton.isEnabled = false
-        
-        
-        
-        // Retrieve the video preview layer's video orientation on the main queue before entering the session queue. We do this to ensure UI
-        // elements are accessed on the main thread and session configuration is done on the session queue.
-        let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
-        let previewLayerVideoOrientation = previewLayer.connection?.videoOrientation
-        self.sessionQueue.async {
-            if !(self.movieFileOutput?.isRecording ?? false) {
-                if UIDevice.current.isMultitaskingSupported {
-                    // Setup background task. This is needed because the -[captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:]
-                    // callback is not received until AVCamManual returns to the foreground unless you request background execution time.
-                    // This also ensures that there will be time to write the file to the photo library when AVCamManual is backgrounded.
-                    // To conclude this background execution, -endBackgroundTask is called in
-                    // -[captureOutput:didFinishRecordingToOutputFileAtURL:fromConnections:error:] after the recorded file has been saved.
-                    self.backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
-                }
-                let movieConnection = self.movieFileOutput?.connection(with: AVMediaType.video)
-                movieConnection?.videoOrientation = previewLayerVideoOrientation!
-                
-                // Start recording to temporary file
-                let outputFileName = ProcessInfo.processInfo.globallyUniqueString
-                let outputFileURL: URL
-                if #available(iOS 10.0, *) {
-                    outputFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(outputFileName).appendingPathExtension("mov")
-                } else {
-                    outputFileURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true).appendingPathComponent(outputFileName).appendingPathExtension("mov")
-                }
-                self.movieFileOutput!.startRecording(to: outputFileURL, recordingDelegate: self)
-            } else {
-                self.movieFileOutput!.stopRecording()
-            }
+    func analyzeRectangle(observation: VNRectangleObservation){
+         DispatchQueue.main.async {
+        let top = (observation.topRight.x - observation.topLeft.x)
+        let bottom = (observation.bottomRight.x - observation.bottomLeft.x)
+        let left = ( observation.topLeft.y - observation.bottomLeft.y)
+        let right = ( observation.topRight.y - observation.bottomRight.y)
+        var width = top
+        var height = left
+        if(top < bottom){
+            width = bottom
+            
         }
+        if (left < right){
+            height = right
+        }
+        let x = min(observation.bottomLeft.x, observation.topRight.x)
+        let y = min(observation.bottomRight.y, observation.bottomLeft.y)
+        
+        print(width)
+        print(height)
+        print(x  * self.view.frame.width)
+        print(y * self.view.frame.height)
+            self.addRectangle(frame: CGRect(x: x * (self.view.frame.width), y: y * (self.view.frame.height - 100), width: width * (self.view.frame.width), height: height * (self.view.frame.height)), obj: observation)
+        }
+        
     }
-    
-    
-    
+    let shape = CAShapeLayer()
+    func addRectangle(frame: CGRect, obj: VNRectangleObservation){
+        DispatchQueue.main.async {
+           self.shape.removeFromSuperlayer()
+//            self.rect.frame = frame
+//            self.rect.backgroundColor = .clear
+//            self.rect.layer.borderColor = UIColor.yellow.cgColor
+//            self.rect.layer.borderWidth = 5.0
+            
+         //   let width = frame.width
+            let x = (((frame.height / 11.0 ) * 8.5) -  frame.width) / 2.0
+            self.view.layer.addSublayer(self.shape)
+            self.shape.opacity = 0.5
+            self.shape.lineWidth = 2
+            self.shape.lineJoin = kCALineJoinMiter
+            self.shape.strokeColor = UIColor(hue: 0.786, saturation: 0.79, brightness: 0.53, alpha: 1.0).cgColor
+            self.shape.fillColor = UIColor(hue: 0.786, saturation: 0.15, brightness: 0.89, alpha: 1.0).cgColor
+            
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: (obj.topLeft.x *  self.previewLayer.frame.width) - x, y: obj.topLeft.y * self.previewLayer.frame.height))
+            path.addLine(to: CGPoint(x: (obj.topRight.x * self.previewLayer.frame.width) + x, y: obj.topRight.y * self.previewLayer.frame.height))
+            path.addLine(to: CGPoint(x:( obj.bottomRight.x *  self.previewLayer.frame.width) + x, y: obj.bottomRight.y * self.previewLayer.frame.height))
+            path.addLine(to: CGPoint(x: (obj.bottomLeft.x * self.previewLayer.frame.width) - x, y: obj.bottomRight.y * self.previewLayer.frame.height))
+            path.close()
+            self.shape.path = path.cgPath
+
+
+            
+        }
+       
+    }
+  
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+       
+        print("outputting things")
+
+//        guard let model = try? VNCoreMLModel(for: Resnet50().model) else {return}
+//
+        let request = VNDetectRectanglesRequest { (finishedRequest, error) in
+            guard let results = finishedRequest.results as? [VNRectangleObservation] else { return }
+            guard let observation = results.first else { return }
+        
+            self.analyzeRectangle(observation: observation)
+            
+            
+        }
+        guard let pixelBuffer: CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        
+        // executes request
+        try? VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:]).perform([request])
+            //VNCoreMLRequest(model: model) { (finishedRequest, error) in
+//
+//            guard let results = finishedRequest.results as? [VNClassificationObservation] else { return }
+//            guard let Observation = results.first else { return }
+//
+//            DispatchQueue.main.async(execute: {
+//                self.label.text = "\(Observation.identifier)"
+//            })
+//        }
+
+    }
     func fileOutput(_ captureOutput: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
         // Note that currentBackgroundRecordingID is used to end the background task associated with this recording.
         // This allows a new recording to be started, associated with a new UIBackgroundTaskIdentifier, once the movie file output's isRecording property
@@ -981,9 +1116,9 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
                 
                 if isCapturingStillImage {
                     DispatchQueue.main.async {
-                        self.previewView.layer.opacity = 0.0
+                        self.previewLayer.opacity = 0.0
                         UIView.animate(withDuration: 0.25, animations: {
-                            self.previewView.layer.opacity = 1.0
+                            self.previewLayer.opacity = 1.0
                         })
                     }
                 }
@@ -1162,10 +1297,10 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     private func snapStillImage() {
         self.sessionQueue.async {
             let stillImageConnection = self.stillImageOutput!.connection(with: AVMediaType.video)
-            let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
+          //  let previewLayer = self.previewView.layer as! AVCaptureVideoPreviewLayer
             
             // Update the orientation on the still image output video connection before capturing.
-            stillImageConnection?.videoOrientation = (previewLayer.connection?.videoOrientation)!
+            stillImageConnection?.videoOrientation = (self.previewLayer.connection?.videoOrientation)!
             
             // Flash set to Auto for Still Capture
             if self.videoDevice!.exposureMode == .custom {

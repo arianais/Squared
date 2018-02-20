@@ -19,12 +19,16 @@ class PreviewView: UIView {
     var session: AVCaptureSession? {
         get {
             let previewLayer = self.layer as! AVCaptureVideoPreviewLayer
+            previewLayer.frame = self.frame
             return previewLayer.session
         }
         
         set {
             let previewLayer = self.layer as! AVCaptureVideoPreviewLayer
             previewLayer.session = newValue
+            previewLayer.frame = self.frame
+              print("self.frame")
+            print(self.frame)
         }
     }
 
